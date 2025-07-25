@@ -1,7 +1,7 @@
 ---
 profilarr_enabled: true
 
-profilarr_helm_repo_name: eb-k8s-home
+profilarr_helm_repo_name: lucheon
 
 profilarr_namespace: media
 

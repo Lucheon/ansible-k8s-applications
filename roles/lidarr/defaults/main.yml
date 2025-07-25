@@ -1,7 +1,7 @@
 ---
 lidarr_enabled: true
 
-lidarr_helm_repo_name: eb-k8s-home
+lidarr_helm_repo_name: lucheon
 
 lidarr_namespace: media
 

@@ -1,7 +1,7 @@
 ---
 jellyseerr_enabled: true
 
-jellyseerr_helm_repo_name: eb-k8s-home
+jellyseerr_helm_repo_name: lucheon
 
 jellyseerr_namespace: media
 

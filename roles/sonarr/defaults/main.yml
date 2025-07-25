@@ -1,7 +1,7 @@
 ---
 sonarr_enabled: true
 
-sonarr_helm_repo_name: eb-k8s-home
+sonarr_helm_repo_name: lucheon
 
 sonarr_namespace: media
 
