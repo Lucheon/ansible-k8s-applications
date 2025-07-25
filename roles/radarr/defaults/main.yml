@@ -1,7 +1,7 @@
 ---
 radarr_enabled: true
 
-radarr_helm_repo_name: eb-k8s-home
+radarr_helm_repo_name: lucheon
 
 radarr_namespace: media
 

@@ -1,7 +1,7 @@
 ---
 plex_enabled: true
 
-plex_helm_repo_name: eb-k8s-home
+plex_helm_repo_name: lucheon
 
 plex_namespace: media
 
