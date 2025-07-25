@@ -1,0 +1,40 @@
+---
+prowlarr_enabled: true
+
+prowlarr_helm_repo_name: eb-k8s-home
+
+prowlarr_namespace: media
+
+prowlarr_image_name: lscr.io/linuxserver/prowlarr
+prowlarr_image_version: latest
+
+prowlarr_service_type: ClusterIP
+prowlarr_service_port: 9696
+
+prowlarr_ingress_enabled: true
+prowlarr_ingress_host: prowlarr.cluster.local
+prowlarr_ingress_path: /
+prowlarr_ingress_tls: true
+prowlarr_ingress_annotations: []
+prowlarr_ingress_class_name: ""
+
+prowlarr_volumes: []
+prowlarr_volume_mounts: []
+
+prowlarr_config_pv_enabled: true
+prowlarr_config_pv_size: 100Mi
+prowlarr_config_pv_storage_class: ""
+prowlarr_config_pv_access_modes:
+  - ReadWriteOnce
+prowlarr_config_pv_existing_claim: ""
+prowlarr_config_pv_creation: auto # auto, manual_nfs, manual_local
+prowlarr_config_pv_local_path: ""
+prowlarr_config_pv_local_node_affinity: {}
+prowlarr_config_pv_nfs_mount_options: []
+prowlarr_config_pv_nfs_path: ""
+prowlarr_config_pv_nfs_server: ""
+
+prowlarr_resources: {}
+
+prowlarr_run_user: 1000
+prowlarr_run_group: 1000

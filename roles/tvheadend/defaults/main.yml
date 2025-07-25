@@ -1,0 +1,54 @@
+---
+tvheadend_enabled: true
+
+tvheadend_helm_repo_name: eb-k8s-home
+
+tvheadend_namespace: media
+
+tvheadend_image_name: linuxserver/tvheadend
+tvheadend_image_version: latest
+
+tvheadend_service_type: ClusterIP
+tvheadend_service_http_port: 9981
+tvheadend_service_htsp_port: 9982
+
+tvheadend_ingress_enabled: true
+tvheadend_ingress_host: tvheadend.cluster.local
+tvheadend_ingress_path: /
+tvheadend_ingress_tls: true
+tvheadend_ingress_annotations: []
+tvheadend_ingress_class_name: ""
+
+tvheadend_volumes: []
+tvheadend_volume_mounts: []
+
+tvheadend_config_pv_enabled: true
+tvheadend_config_pv_size: 100Mi
+tvheadend_config_pv_storage_class: ""
+tvheadend_config_pv_access_modes:
+  - ReadWriteOnce
+tvheadend_config_pv_existing_claim: ""
+tvheadend_config_pv_creation: auto # auto, manual_nfs, manual_local
+tvheadend_config_pv_local_path: ""
+tvheadend_config_pv_local_node_affinity: {}
+tvheadend_config_pv_nfs_mount_options: []
+tvheadend_config_pv_nfs_path: ""
+tvheadend_config_pv_nfs_server: ""
+
+tvheadend_recordings_pv_enabled: true
+tvheadend_recordings_pv_size: 100Mi
+tvheadend_recordings_pv_storage_class: ""
+tvheadend_recordings_pv_access_modes:
+  - ReadWriteOnce
+tvheadend_recordings_pv_existing_claim: ""
+tvheadend_recordings_pv_creation: auto # auto, manual_nfs, manual_local
+tvheadend_recordings_pv_local_path: ""
+tvheadend_recordings_pv_local_node_affinity: {}
+tvheadend_recordings_pv_nfs_mount_options: []
+tvheadend_recordings_pv_nfs_path: ""
+tvheadend_recordings_pv_nfs_server: ""
+
+tvheadend_resources: {}
+
+tvheadend_run_user: 1000
+tvheadend_run_group: 1000

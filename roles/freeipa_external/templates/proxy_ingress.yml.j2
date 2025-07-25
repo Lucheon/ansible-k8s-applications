@@ -1,0 +1,32 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+{% for annotation in freeipa_external_ingress_annotations %}
+    {{ annotation }}
+{% endfor %}
+  labels:
+    app.kubernetes.io/name: nginx-proxy
+    app.kubernetes.io/instance: {{ freeipa_external_service_name }}-proxy
+  name: {{ freeipa_external_service_name }}-proxy
+  namespace: {{ freeipa_external_namespace }}
+spec:
+  ingressClassName: {{ freeipa_external_ingress_class_name }}
+  rules:
+  - host: {{ freeipa_external_ingress_host }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ freeipa_external_service_name }}-proxy
+            port:
+              name: https
+        path: /
+        pathType: ImplementationSpecific
+{% if freeipa_external_ingress_tls %}
+  tls:
+  - hosts:
+    - {{ freeipa_external_ingress_host }}
+    secretName: {{ freeipa_external_service_name }}-proxy-tls
+{% endif %}

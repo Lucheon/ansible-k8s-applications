@@ -1,0 +1,79 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ jellyfin_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: jellyfin_enabled
+
+- name: Deploy jellyfin config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ jellyfin_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ jellyfin_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ jellyfin_namespace }}"
+    local_pv_pvc_name: "jellyfin-config"
+    local_pv_size: "{{ jellyfin_config_pv_size }}"
+  when:
+    - jellyfin_enabled
+    - jellyfin_config_pv_enabled
+    - jellyfin_config_pv_creation == 'manual_local'
+
+- name: Deploy jellyfin config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ jellyfin_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ jellyfin_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ jellyfin_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ jellyfin_namespace }}"
+    nfs_pv_pvc_name: "jellyfin-config"
+    nfs_pv_size: "{{ jellyfin_config_pv_size }}"
+    nfs_pv_file_owner: "{{ jellyfin_run_user }}"
+    nfs_pv_file_group: "{{ jellyfin_run_group }}"
+  when:
+    - jellyfin_enabled
+    - jellyfin_config_pv_enabled
+    - jellyfin_config_pv_creation == 'manual_nfs'
+
+- name: Deploy jellyfin cache persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ jellyfin_cache_pv_local_path }}"
+    local_pv_node_affinity: "{{ jellyfin_cache_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ jellyfin_namespace }}"
+    local_pv_pvc_name: "jellyfin-cache"
+    local_pv_size: "{{ jellyfin_cache_pv_size }}"
+  when:
+    - jellyfin_enabled
+    - jellyfin_cache_pv_enabled
+    - jellyfin_cache_pv_creation == 'manual_local'
+
+- name: Deploy jellyfin cache persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ jellyfin_cache_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ jellyfin_cache_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ jellyfin_cache_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ jellyfin_namespace }}"
+    nfs_pv_pvc_name: "jellyfin-cache"
+    nfs_pv_size: "{{ jellyfin_cache_pv_size }}"
+    nfs_pv_file_owner: "{{ jellyfin_run_user }}"
+    nfs_pv_file_group: "{{ jellyfin_run_group }}"
+  when:
+    - jellyfin_enabled
+    - jellyfin_cache_pv_enabled
+    - jellyfin_cache_pv_creation == 'manual_nfs'
+
+- name: Deploy Jellyfin chart with values loaded from template
+  kubernetes.core.helm:
+    name: jellyfin
+    release_namespace: "{{ jellyfin_namespace }}"
+    chart_ref: "{{ jellyfin_helm_repo_name }}/jellyfin"
+    values: "{{ lookup('template', 'jellyfin.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if jellyfin_enabled else 'absent' }}"
+    update_repo_cache: true

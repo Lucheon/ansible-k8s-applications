@@ -1,0 +1,17 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ freeipa_external_service_name }}-proxy
+  namespace: {{ freeipa_external_namespace }}
+  labels:
+    app.kubernetes.io/name: nginx-proxy
+    app.kubernetes.io/instance: {{ freeipa_external_service_name }}-proxy
+spec:
+  commonName: {{ freeipa_external_ingress_host }}
+  dnsNames:
+    - {{ freeipa_external_service_name }}-proxy
+    - {{ freeipa_external_service_name }}-proxy.{{ freeipa_external_namespace }}
+    - {{ freeipa_external_service_name }}-proxy.{{ freeipa_external_namespace }}.svc
+  secretName: {{ freeipa_external_service_name }}-proxy-backend-tls
+  issuerRef: {{ freeipa_external_certificate_issuer_ref }}

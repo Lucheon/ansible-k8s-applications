@@ -1,0 +1,178 @@
+---
+transmission_enabled: true
+
+transmission_helm_repo_name: eb-k8s-home
+
+transmission_namespace: media
+
+transmission_image_name: lscr.io/linuxserver/transmission
+transmission_image_version: latest
+
+transmission_username: "user"
+transmission_password: "pass"
+
+transmission_http_service_enabled: true
+transmission_http_service_type: ClusterIP
+transmission_http_service_port: 9091
+
+transmission_p2p_service_enabled: true
+transmission_p2p_service_type: ClusterIP
+transmission_p2p_service_port: 51413
+
+transmission_ingress_enabled: true
+transmission_ingress_host: transmission.cluster.local
+transmission_ingress_path: /
+transmission_ingress_tls: true
+transmission_ingress_annotations: {}
+transmission_ingress_class_name: ""
+
+transmission_volumes: []
+transmission_volume_mounts: []
+
+transmission_config_pv_enabled: true
+transmission_config_pv_size: 100Mi
+transmission_config_pv_storage_class: ""
+transmission_config_pv_access_modes:
+  - ReadWriteOnce
+transmission_config_pv_existing_claim: ""
+transmission_config_pv_creation: auto # auto, manual_nfs, manual_local
+transmission_config_pv_local_path: ""
+transmission_config_pv_local_node_affinity: {}
+transmission_config_pv_nfs_mount_options: []
+transmission_config_pv_nfs_path: ""
+transmission_config_pv_nfs_server: ""
+
+transmission_downloads_pv_enabled: true
+transmission_downloads_empty_dir_if_disabled: true
+transmission_downloads_pv_size: 100Gi
+transmission_downloads_pv_storage_class: ""
+transmission_downloads_pv_access_modes:
+  - ReadWriteOnce
+transmission_downloads_pv_existing_claim: ""
+transmission_downloads_pv_creation: auto # auto, manual_local
+transmission_downloads_pv_local_path: ""
+transmission_downloads_pv_local_node_affinity: {}
+transmission_downloads_pv_nfs_mount_options: []
+transmission_downloads_pv_nfs_path: ""
+transmission_downloads_pv_nfs_server: ""
+
+transmission_watch_pv_enabled: true
+transmission_watch_empty_dir_if_disabled: true
+transmission_watch_pv_size: 100Mi
+transmission_watch_pv_storage_class: ""
+transmission_watch_pv_access_modes:
+  - ReadWriteOnce
+transmission_watch_pv_existing_claim: ""
+transmission_watch_pv_creation: auto # auto, manual_local
+transmission_watch_pv_local_path: ""
+transmission_watch_pv_local_node_affinity: {}
+transmission_watch_pv_nfs_mount_options: []
+transmission_watch_pv_nfs_path: ""
+transmission_watch_pv_nfs_server: ""
+
+transmission_resources: {}
+
+transmission_run_user: 1000
+transmission_run_group: 1000
+
+# Some fields are overriden by lscr.io/linuxserver/transmission image with env variables
+# https://docs.linuxserver.io/images/docker-transmission/
+# Theses fields are:
+# - rpc-authentication-required (Always)
+# - rpc-username (if USER and PASS defined)
+# - rpc-password (if USER and PASS defined)
+# - rpc-whitelist-enabled (Always)
+# - rpc-whitelist (if WHITELIST defined)
+# - rpc-host-whitelist-enabled (Always)
+# - rpc-host-whitelist (if HOST_WHITELIST defined)
+# - peer-port (if PEERPORT defined)
+# - peer-port-random-on-start (if PEERPORT defined)
+# - umask (if UMASK defined)
+transmission_configuration_override: false
+transmission_configuration: |
+  {
+    "alt-speed-down": 50,
+    "alt-speed-enabled": false,
+    "alt-speed-time-begin": 540,
+    "alt-speed-time-day": 127,
+    "alt-speed-time-enabled": false,
+    "alt-speed-time-end": 1020,
+    "alt-speed-up": 50,
+    "bind-address-ipv4": "0.0.0.0",
+    "bind-address-ipv6": "::",
+    "blocklist-enabled": false,
+    "blocklist-url": "http://www.example.com/blocklist",
+    "cache-size-mb": 4,
+    "dht-enabled": true,
+    "download-dir": "/downloads/complete",
+    "download-queue-enabled": true,
+    "download-queue-size": 5,
+    "encryption": 1,
+    "idle-seeding-limit": 30,
+    "idle-seeding-limit-enabled": false,
+    "incomplete-dir": "/downloads/incomplete",
+    "incomplete-dir-enabled": true,
+    "lpd-enabled": false,
+    "message-level": 2,
+    "peer-congestion-algorithm": "",
+    "peer-id-ttl-hours": 6,
+    "peer-limit-global": 200,
+    "peer-limit-per-torrent": 50,
+    "peer-port": 51413,
+    "peer-port-random-high": 65535,
+    "peer-port-random-low": 49152,
+    "peer-port-random-on-start": false,
+    "peer-socket-tos": "default",
+    "pex-enabled": true,
+    "port-forwarding-enabled": true,
+    "preallocation": 1,
+    "prefetch-enabled": 1,
+    "queue-stalled-enabled": true,
+    "queue-stalled-minutes": 30,
+    "ratio-limit": 2,
+    "ratio-limit-enabled": false,
+    "rename-partial-files": true,
+    "rpc-authentication-required": false,
+    "rpc-bind-address": "0.0.0.0",
+    "rpc-enabled": true,
+    "rpc-password": "",
+    "rpc-port": 9091,
+    "rpc-url": "/transmission/",
+    "rpc-username": "",
+    "rpc-host-whitelist": "127.0.0.1",
+    "rpc-host-whitelist-enabled": false,
+    "rpc-whitelist": "127.0.0.1",
+    "rpc-whitelist-enabled": false,
+    "scrape-paused-torrents-enabled": true,
+    "script-torrent-done-enabled": false,
+    "script-torrent-done-filename": "",
+    "seed-queue-enabled": false,
+    "seed-queue-size": 10,
+    "speed-limit-down": 100,
+    "speed-limit-down-enabled": false,
+    "speed-limit-up": 100,
+    "speed-limit-up-enabled": false,
+    "start-added-torrents": true,
+    "trash-original-torrent-files": false,
+    "umask": 2,
+    "upload-slots-per-torrent": 14,
+    "utp-enabled": false,
+    "watch-dir": "/watch",
+    "watch-dir-enabled": true
+  }
+
+transmission_folders_to_create:
+  - /downloads/complete
+  - /downloads/incomplete
+
+transmission_gluetun_enabled: false
+
+transmission_gluetun_image_name: qmcgaw/gluetun
+transmission_gluetun_image_version: latest
+
+transmission_gluetun_env: {}
+transmission_gluetun_secure_env: {}
+
+transmission_gluetun_privileged: true
+
+transmission_gluetun_config_files: {}

@@ -1,0 +1,126 @@
+---
+# Default values for tvheadend.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+strategy:
+  type: Recreate
+
+image:
+  repository: {{ tvheadend_image_name }}
+  pullPolicy: IfNotPresent
+  tag: {{ tvheadend_image_version }}
+
+env:
+  TZ: "UTC"
+  PUID: {{ tvheadend_run_user }}
+  PGID: {{ tvheadend_run_group }}
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  supplementalGroups: [{{ tvheadend_run_group }}]
+
+securityContext: {}
+
+service:
+  type: {{ tvheadend_service_type }}
+  httpPort: {{ tvheadend_service_http_port }}
+  htspPort: {{ tvheadend_service_htsp_port }}
+
+ingress:
+{% if tvheadend_ingress_enabled %}
+  enabled: true
+{% else %}
+  enable: false
+{% endif %}
+  className: {{ tvheadend_ingress_class_name }}
+  annotations: {{ tvheadend_ingress_annotations }}
+  hosts:
+    - host: {{ tvheadend_ingress_host }}
+      paths:
+        - path: {{ tvheadend_ingress_path }}
+          pathType: ImplementationSpecific
+{% if tvheadend_ingress_tls %}
+  tls:
+  - secretName: tvheadend-tls
+    hosts:
+      - {{ tvheadend_ingress_host }}
+{% else %}
+  tls: []
+{% endif %}
+
+extraVolumes: {{ tvheadend_volumes }}
+
+extraVolumeMounts: {{ tvheadend_volume_mounts }}
+
+persistence:
+  config:
+{% if tvheadend_config_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ tvheadend_config_pv_storage_class }}
+    annotations: {}
+    existingClaim: {{ tvheadend_config_pv_existing_claim }}
+    accessModes: {{ tvheadend_config_pv_access_modes | to_yaml }}
+    size: {{ tvheadend_config_pv_size }}
+{% if tvheadend_config_pv_creation != 'auto' %}
+    existingClaim: tvheadend-config
+{% else %}
+    existingClaim: {{ tvheadend_config_pv_existing_claim }}
+{% endif %}
+
+  recordings:
+{% if tvheadend_recordings_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ tvheadend_recordings_pv_storage_class }}
+    annotations: {}
+    existingClaim: {{ tvheadend_recordings_pv_existing_claim }}
+    accessModes: {{ tvheadend_recordings_pv_access_modes | to_yaml }}
+    size: {{ tvheadend_recordings_pv_size }}
+{% if tvheadend_recordings_pv_creation != 'auto' %}
+    existingClaim: tvheadend-recordings
+{% else %}
+    existingClaim: {{ tvheadend_recordings_pv_existing_claim }}
+{% endif %}
+
+resources: {{ tvheadend_resources }}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

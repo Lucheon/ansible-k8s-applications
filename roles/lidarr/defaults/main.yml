@@ -1,0 +1,40 @@
+---
+lidarr_enabled: true
+
+lidarr_helm_repo_name: eb-k8s-home
+
+lidarr_namespace: media
+
+lidarr_image_name: lscr.io/linuxserver/lidarr
+lidarr_image_version: latest
+
+lidarr_service_type: ClusterIP
+lidarr_service_port: 8686
+
+lidarr_ingress_enabled: true
+lidarr_ingress_host: lidarr.cluster.local
+lidarr_ingress_path: /
+lidarr_ingress_tls: true
+lidarr_ingress_annotations: []
+lidarr_ingress_class_name: ""
+
+lidarr_volumes: []
+lidarr_volume_mounts: []
+
+lidarr_config_pv_enabled: true
+lidarr_config_pv_size: 100Mi
+lidarr_config_pv_storage_class: ""
+lidarr_config_pv_access_modes:
+  - ReadWriteOnce
+lidarr_config_pv_existing_claim: ""
+lidarr_config_pv_creation: auto # auto, manual_nfs, manual_local
+lidarr_config_pv_local_path: ""
+lidarr_config_pv_local_node_affinity: {}
+lidarr_config_pv_nfs_mount_options: []
+lidarr_config_pv_nfs_path: ""
+lidarr_config_pv_nfs_server: ""
+
+lidarr_resources: {}
+
+lidarr_run_user: 1000
+lidarr_run_group: 1000

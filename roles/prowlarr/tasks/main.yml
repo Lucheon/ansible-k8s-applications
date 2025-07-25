@@ -1,0 +1,48 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ prowlarr_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: prowlarr_enabled
+
+- name: Deploy prowlarr config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ prowlarr_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ prowlarr_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ prowlarr_namespace }}"
+    local_pv_pvc_name: "prowlarr-config"
+    local_pv_size: "{{ prowlarr_config_pv_size }}"
+  when:
+    - prowlarr_enabled
+    - prowlarr_config_pv_enabled
+    - prowlarr_config_pv_creation == 'manual_local'
+
+- name: Deploy prowlarr config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ prowlarr_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ prowlarr_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ prowlarr_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ prowlarr_namespace }}"
+    nfs_pv_pvc_name: "prowlarr-config"
+    nfs_pv_size: "{{ prowlarr_config_pv_size }}"
+    nfs_pv_file_owner: "{{ prowlarr_run_user }}"
+    nfs_pv_file_group: "{{ prowlarr_run_group }}"
+  when:
+    - prowlarr_enabled
+    - prowlarr_config_pv_enabled
+    - prowlarr_config_pv_creation == 'manual_nfs'
+
+- name: Deploy prowlarr chart with values loaded from template
+  kubernetes.core.helm:
+    name: prowlarr
+    release_namespace: "{{ prowlarr_namespace }}"
+    chart_ref: "{{ prowlarr_helm_repo_name }}/prowlarr"
+    values: "{{ lookup('template', 'prowlarr.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if prowlarr_enabled else 'absent' }}"
+    update_repo_cache: true

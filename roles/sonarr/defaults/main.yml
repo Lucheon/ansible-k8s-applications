@@ -1,0 +1,40 @@
+---
+sonarr_enabled: true
+
+sonarr_helm_repo_name: eb-k8s-home
+
+sonarr_namespace: media
+
+sonarr_image_name: lscr.io/linuxserver/sonarr
+sonarr_image_version: latest
+
+sonarr_service_type: ClusterIP
+sonarr_service_port: 8989
+
+sonarr_ingress_enabled: true
+sonarr_ingress_host: sonarr.cluster.local
+sonarr_ingress_path: /
+sonarr_ingress_tls: true
+sonarr_ingress_annotations: []
+sonarr_ingress_class_name: ""
+
+sonarr_volumes: []
+sonarr_volume_mounts: []
+
+sonarr_config_pv_enabled: true
+sonarr_config_pv_size: 100Mi
+sonarr_config_pv_storage_class: ""
+sonarr_config_pv_access_modes:
+  - ReadWriteOnce
+sonarr_config_pv_existing_claim: ""
+sonarr_config_pv_creation: auto # auto, manual_nfs, manual_local
+sonarr_config_pv_local_path: ""
+sonarr_config_pv_local_node_affinity: {}
+sonarr_config_pv_nfs_mount_options: []
+sonarr_config_pv_nfs_path: ""
+sonarr_config_pv_nfs_server: ""
+
+sonarr_resources: {}
+
+sonarr_run_user: 1000
+sonarr_run_group: 1000
