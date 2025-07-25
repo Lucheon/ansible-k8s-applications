@@ -1,0 +1,40 @@
+---
+radarr_enabled: true
+
+radarr_helm_repo_name: eb-k8s-home
+
+radarr_namespace: media
+
+radarr_image_name: lscr.io/linuxserver/radarr
+radarr_image_version: latest
+
+radarr_service_type: ClusterIP
+radarr_service_port: 7878
+
+radarr_ingress_enabled: true
+radarr_ingress_host: radarr.cluster.local
+radarr_ingress_path: /
+radarr_ingress_tls: true
+radarr_ingress_annotations: []
+radarr_ingress_class_name: ""
+
+radarr_volumes: []
+radarr_volume_mounts: []
+
+radarr_config_pv_enabled: true
+radarr_config_pv_size: 100Mi
+radarr_config_pv_storage_class: ""
+radarr_config_pv_access_modes:
+  - ReadWriteOnce
+radarr_config_pv_existing_claim: ""
+radarr_config_pv_creation: auto # auto, manual_nfs, manual_local
+radarr_config_pv_local_path: ""
+radarr_config_pv_local_node_affinity: {}
+radarr_config_pv_nfs_mount_options: []
+radarr_config_pv_nfs_path: ""
+radarr_config_pv_nfs_server: ""
+
+radarr_resources: {}
+
+radarr_run_user: 1000
+radarr_run_group: 1000

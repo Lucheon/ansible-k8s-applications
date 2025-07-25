@@ -1,0 +1,46 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ plex_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: plex_enabled
+
+- name: Deploy plex config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ plex_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ plex_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ plex_namespace }}"
+    local_pv_pvc_name: "plex-config"
+    local_pv_size: "{{ plex_config_pv_size }}"
+  when:
+    - plex_enabled
+    - plex_config_pv_creation == 'manual_local'
+
+- name: Deploy plex config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ plex_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ plex_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ plex_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ plex_namespace }}"
+    nfs_pv_pvc_name: "plex-config"
+    nfs_pv_size: "{{ plex_config_pv_size }}"
+    nfs_pv_file_owner: "{{ plex_run_user }}"
+    nfs_pv_file_group: "{{ plex_run_group }}"
+  when:
+    - plex_enabled
+    - plex_config_pv_creation == 'manual_nfs'
+
+- name: Deploy plex chart with values loaded from template
+  kubernetes.core.helm:
+    name: plex
+    release_namespace: "{{ plex_namespace }}"
+    chart_ref: "{{ plex_helm_repo_name }}/plex"
+    values: "{{ lookup('template', 'plex.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if plex_enabled else 'absent' }}"
+    update_repo_cache: true

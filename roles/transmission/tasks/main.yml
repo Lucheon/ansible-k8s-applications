@@ -1,0 +1,110 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ transmission_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: transmission_enabled
+
+- name: Deploy transmission config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ transmission_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ transmission_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ transmission_namespace }}"
+    local_pv_pvc_name: "transmission-config"
+    local_pv_size: "{{ transmission_config_pv_size }}"
+  when:
+    - transmission_enabled
+    - transmission_config_pv_enabled
+    - transmission_config_pv_creation == 'manual_local'
+
+- name: Deploy transmission config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ transmission_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ transmission_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ transmission_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ transmission_namespace }}"
+    nfs_pv_pvc_name: "transmission-config"
+    nfs_pv_size: "{{ transmission_config_pv_size }}"
+    nfs_pv_file_owner: "{{ transmission_run_user }}"
+    nfs_pv_file_group: "{{ transmission_run_group }}"
+  when:
+    - transmission_enabled
+    - transmission_config_pv_enabled
+    - transmission_config_pv_creation == 'manual_nfs'
+
+- name: Deploy transmission downloads persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ transmission_downloads_pv_local_path }}"
+    local_pv_node_affinity: "{{ transmission_downloads_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ transmission_namespace }}"
+    local_pv_pvc_name: "transmission-downloads"
+    local_pv_size: "{{ transmission_downloads_pv_size }}"
+  when:
+    - transmission_enabled
+    - transmission_downloads_pv_enabled
+    - transmission_downloads_pv_creation == 'manual_local'
+
+- name: Deploy transmission downloads persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ transmission_downloads_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ transmission_downloads_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ transmission_downloads_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ transmission_namespace }}"
+    nfs_pv_pvc_name: "transmission-downloads"
+    nfs_pv_size: "{{ transmission_downloads_pv_size }}"
+    nfs_pv_file_owner: "{{ transmission_run_user }}"
+    nfs_pv_file_group: "{{ transmission_run_group }}"
+  when:
+    - transmission_enabled
+    - transmission_downloads_pv_enabled
+    - transmission_downloads_pv_creation == 'manual_nfs'
+
+- name: Deploy transmission watch persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ transmission_watch_pv_local_path }}"
+    local_pv_node_affinity: "{{ transmission_watch_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ transmission_namespace }}"
+    local_pv_pvc_name: "transmission-watch"
+    local_pv_size: "{{ transmission_watch_pv_size }}"
+  when:
+    - transmission_enabled
+    - transmission_watch_pv_enabled
+    - transmission_watch_pv_creation == 'manual_local'
+
+- name: Deploy transmission watch persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ transmission_watch_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ transmission_watch_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ transmission_watch_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ transmission_namespace }}"
+    nfs_pv_pvc_name: "transmission-watch"
+    nfs_pv_size: "{{ transmission_watch_pv_size }}"
+    nfs_pv_file_owner: "{{ transmission_run_user }}"
+    nfs_pv_file_group: "{{ transmission_run_group }}"
+  when:
+    - transmission_enabled
+    - transmission_watch_pv_enabled
+    - transmission_watch_pv_creation == 'manual_nfs'
+
+- name: Deploy transmission chart with values loaded from template
+  kubernetes.core.helm:
+    name: transmission
+    release_namespace: "{{ transmission_namespace }}"
+    chart_ref: "{{ transmission_helm_repo_name }}/transmission"
+    values: "{{ lookup('template', 'transmission.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if transmission_enabled else 'absent' }}"
+    update_repo_cache: true

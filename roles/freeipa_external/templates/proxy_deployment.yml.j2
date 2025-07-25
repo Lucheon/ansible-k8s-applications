@@ -1,0 +1,94 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ freeipa_external_service_name }}-proxy
+  namespace: {{ freeipa_external_namespace }}
+  labels:
+    app.kubernetes.io/name: nginx-proxy
+    app.kubernetes.io/instance: {{ freeipa_external_service_name }}-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx-proxy
+      app.kubernetes.io/instance: {{ freeipa_external_service_name }}-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx-proxy
+        app.kubernetes.io/instance: {{ freeipa_external_service_name }}-proxy
+    spec:
+      containers:
+      - name: nginx-proxy
+        image: nginx:1.28.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: https
+          containerPort: 8443
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /ipa/ui
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ipa/ui
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 10
+        volumeMounts:
+          - name: proxy-config
+            mountPath: /etc/nginx/conf.d
+            readOnly: true
+          - name: nginx-config
+            mountPath: /etc/nginx
+            readOnly: true
+          - name: ca-cert
+            mountPath: /etc/nginx/certs
+            readOnly: true
+          - name: tls-certs
+            mountPath: /tls_certs
+            readOnly: true
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - CHOWN
+              - SETUID
+              - SETGID
+          privileged: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+      securityContext:
+        fsGroup: 999
+        runAsNonRoot: false
+      volumes:
+      - name: proxy-config
+        configMap:
+          name: {{ freeipa_external_service_name }}-proxy
+          items:
+          - key: proxy.conf
+            path: proxy.conf
+      - name: nginx-config
+        configMap:
+          name: {{ freeipa_external_service_name }}-proxy
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      - name: ca-cert
+        configMap:
+          name: {{ freeipa_external_service_name }}-cacert
+          items:
+          - key: ca.crt
+            path: ipa-ca.crt
+      - name: tls-certs
+        secret:
+          secretName: {{ freeipa_external_service_name }}-proxy-backend-tls

@@ -1,0 +1,21 @@
+---
+freeipa_external_enabled: true
+
+freeipa_external_namespace: auth
+
+freeipa_external_endpoints:
+  - ipa.example.org
+freeipa_external_ip_endpoints:
+  - 1.2.3.4
+freeipa_external_port: 443
+
+freeipa_external_service_name: freeipa
+
+freeipa_external_ingress_host: ipa.cluster.local
+freeipa_external_ingress_tls: true
+freeipa_external_ingress_annotations: {}
+freeipa_external_ingress_class_name: ""
+
+freeipa_external_certificate_issuer_ref:
+  name: "default-ca"
+  kind: "ClusterIssuer"

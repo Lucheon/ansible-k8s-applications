@@ -1,0 +1,48 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ radarr_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: radarr_enabled
+
+- name: Deploy radarr config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ radarr_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ radarr_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ radarr_namespace }}"
+    local_pv_pvc_name: "radarr-config"
+    local_pv_size: "{{ radarr_config_pv_size }}"
+  when:
+    - radarr_enabled
+    - radarr_config_pv_enabled
+    - radarr_config_pv_creation == 'manual_local'
+
+- name: Deploy radarr config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ radarr_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ radarr_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ radarr_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ radarr_namespace }}"
+    nfs_pv_pvc_name: "radarr-config"
+    nfs_pv_size: "{{ radarr_config_pv_size }}"
+    nfs_pv_file_owner: "{{ radarr_run_user }}"
+    nfs_pv_file_group: "{{ radarr_run_group }}"
+  when:
+    - radarr_enabled
+    - radarr_config_pv_enabled
+    - radarr_config_pv_creation == 'manual_nfs'
+
+- name: Deploy radarr chart with values loaded from template
+  kubernetes.core.helm:
+    name: radarr
+    release_namespace: "{{ radarr_namespace }}"
+    chart_ref: "{{ radarr_helm_repo_name }}/radarr"
+    values: "{{ lookup('template', 'radarr.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if radarr_enabled else 'absent' }}"
+    update_repo_cache: true

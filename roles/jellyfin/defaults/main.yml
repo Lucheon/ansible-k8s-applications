@@ -1,0 +1,53 @@
+---
+jellyfin_enabled: true
+
+jellyfin_helm_repo_name: eb-k8s-home
+
+jellyfin_namespace: media
+
+jellyfin_image_name: jellyfin/jellyfin
+jellyfin_image_version: latest
+
+jellyfin_service_type: ClusterIP
+jellyfin_service_port: 8096
+
+jellyfin_ingress_enabled: true
+jellyfin_ingress_host: jellyfin.cluster.local
+jellyfin_ingress_path: /
+jellyfin_ingress_tls: true
+jellyfin_ingress_annotations: []
+jellyfin_ingress_class_name: ""
+
+jellyfin_volumes: []
+jellyfin_volume_mounts: []
+
+jellyfin_config_pv_enabled: true
+jellyfin_config_pv_size: 100Mi
+jellyfin_config_pv_storage_class: ""
+jellyfin_config_pv_access_modes:
+  - ReadWriteOnce
+jellyfin_config_pv_existing_claim: ""
+jellyfin_config_pv_creation: auto # auto, manual_nfs, manual_local
+jellyfin_config_pv_local_path: ""
+jellyfin_config_pv_local_node_affinity: {}
+jellyfin_config_pv_nfs_mount_options: []
+jellyfin_config_pv_nfs_path: ""
+jellyfin_config_pv_nfs_server: ""
+
+jellyfin_cache_pv_enabled: false
+jellyfin_cache_pv_size: 100Mi
+jellyfin_cache_pv_storage_class: ""
+jellyfin_cache_pv_access_modes:
+  - ReadWriteOnce
+jellyfin_cache_pv_existing_claim: ""
+jellyfin_cache_pv_creation: auto # auto, manual_local
+jellyfin_cache_pv_local_path: ""
+jellyfin_cache_pv_local_node_affinity: {}
+jellyfin_cache_pv_nfs_mount_options: []
+jellyfin_cache_pv_nfs_path: ""
+jellyfin_cache_pv_nfs_server: ""
+
+jellyfin_resources: {}
+
+jellyfin_run_user: 1000
+jellyfin_run_group: 1000

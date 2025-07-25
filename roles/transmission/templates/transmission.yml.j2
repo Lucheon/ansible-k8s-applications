@@ -1,0 +1,173 @@
+---
+strategy:
+  type: Recreate
+
+image:
+  repository: {{ transmission_image_name }}
+  pullPolicy: IfNotPresent
+  tag: {{ transmission_image_version }}
+
+env:
+  TZ: "Etc/UTC"
+
+secureEnv:
+  USER: "{{ transmission_username }}"
+  PASS: "{{ transmission_password }}"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: {{ transmission_run_group }}
+  runAsUser: {{ transmission_run_user }}
+  runAsGroup: {{ transmission_run_group }}
+
+securityContext: {}
+
+gluetun:
+  enabled: {{ transmission_gluetun_enabled }}
+  image:
+    repository: {{ transmission_gluetun_image_name }}
+    pullPolicy: IfNotPresent
+    tag: {{ transmission_gluetun_image_version }}
+  env: {{ transmission_gluetun_env }}
+
+  secureEnv: {{ transmission_gluetun_secure_env }}
+  privileged: {{ transmission_gluetun_privileged }}
+  configFiles: {{ transmission_gluetun_config_files | to_yaml }}
+
+configuration:
+  override: {{ transmission_configuration_override }}
+  settings: |
+    {{ transmission_configuration | indent(4) }}
+  folders_to_create: {{ transmission_folders_to_create }}
+
+services:
+  http:
+    type: {{ transmission_http_service_type }}
+    port: {{ transmission_http_service_port }}
+    enabled: {{ transmission_http_service_enabled }}
+  p2p:
+    type: {{ transmission_p2p_service_type }}
+    TCPPort: {{ transmission_p2p_service_port }}
+    UDPPort: {{ transmission_p2p_service_port }}
+    enabled: {{ transmission_p2p_service_enabled }}
+
+ingress:
+{% if transmission_ingress_enabled %}
+  enabled: true
+{% else %}
+  enable: false
+{% endif %}
+  className: {{ transmission_ingress_class_name }}
+  annotations: {{ transmission_ingress_annotations }}
+  hosts:
+    - host: {{ transmission_ingress_host }}
+      paths:
+        - path: {{ transmission_ingress_path }}
+          pathType: ImplementationSpecific
+{% if transmission_ingress_tls %}
+  tls:
+  - secretName: transmission-tls
+    hosts:
+      - {{ transmission_ingress_host }}
+{% else %}
+  tls: []
+{% endif %}
+
+extraVolumes: {{ transmission_volumes }}
+
+extraVolumeMounts: {{ transmission_volume_mounts }}
+
+persistence:
+  config:
+{% if transmission_config_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ transmission_config_pv_storage_class }}
+    annotations: {}
+    existingClaim: {{ transmission_config_pv_existing_claim }}
+    accessModes: {{ transmission_config_pv_access_modes | to_yaml }}
+    size: {{ transmission_config_pv_size }}
+{% if transmission_config_pv_creation != 'auto' %}
+    existingClaim: transmission-config
+{% else %}
+    existingClaim: {{ transmission_config_pv_existing_claim }}
+{% endif %}
+
+  downloads:
+{% if transmission_downloads_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    empty_dir_if_disabled: {{ transmission_downloads_empty_dir_if_disabled }}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ transmission_downloads_pv_storage_class }}
+    annotations: {}
+    existingClaim: {{ transmission_downloads_pv_existing_claim }}
+    accessModes: {{ transmission_downloads_pv_access_modes | to_yaml }}
+    size: {{ transmission_downloads_pv_size }}
+{% if transmission_downloads_pv_creation != 'auto' %}
+    existingClaim: transmission-downloads
+{% else %}
+    existingClaim: {{ transmission_downloads_pv_existing_claim }}
+{% endif %}
+
+  watch:
+{% if transmission_watch_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    empty_dir_if_disabled: {{ transmission_downloads_empty_dir_if_disabled }}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ transmission_watch_pv_storage_class }}
+    annotations: {}
+    existingClaim: {{ transmission_watch_pv_existing_claim }}
+    accessModes: {{ transmission_watch_pv_access_modes | to_yaml }}
+    size: {{ transmission_watch_pv_size }}
+{% if transmission_watch_pv_creation != 'auto' %}
+    existingClaim: transmission-watch
+{% else %}
+    existingClaim: {{ transmission_watch_pv_existing_claim }}
+{% endif %}
+
+resources: {{ transmission_resources }}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

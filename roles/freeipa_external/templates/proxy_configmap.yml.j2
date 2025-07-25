@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ freeipa_external_service_name }}-proxy
+  namespace: {{ freeipa_external_namespace }}
+  labels:
+    app.kubernetes.io/name: nginx-proxy
+    app.kubernetes.io/instance: {{ freeipa_external_service_name }}-proxy
+data:
+  nginx.conf: |
+    # For more information on configuration, see:
+    #   * Official English Documentation: http://nginx.org/en/docs/
+    #   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+    worker_processes auto;
+    error_log /dev/stderr warn;
+    pid /run/nginx.pid;
+
+    # Load dynamic modules. See /usr/share/doc/nginx/README.dynamic.
+    include /usr/share/nginx/modules/*.conf;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+        # access_log  /dev/stdout  main;
+
+        sendfile            on;
+        tcp_nopush          on;
+        tcp_nodelay         on;
+        keepalive_timeout   65;
+        types_hash_max_size 2048;
+
+        default_type        application/octet-stream;
+
+        # Load modular configuration files from the /etc/nginx/conf.d directory.
+        # See http://nginx.org/en/docs/ngx_core_module.html#include
+        # for more information.
+        include /etc/nginx/conf.d/*.conf;
+    }
+
+  proxy.conf: |
+{% for item in freeipa_external_endpoints %}
+    server {
+      listen 800{{ loop.index }};
+
+      location / {
+        proxy_pass https://{{ item }};
+        proxy_set_header Referer https://{{ item }}/ipa/ui/;
+        proxy_ssl_verify on;
+        proxy_ssl_trusted_certificate /etc/nginx/certs/ipa-ca.crt;
+        proxy_ssl_name {{ item }};
+        proxy_redirect https://{{ item }} https://{{ freeipa_external_ingress_host }};
+      }
+    }
+
+{% endfor %}
+    upstream freeipa {
+      ip_hash;
+{% for item in freeipa_external_endpoints %}
+      server 127.0.0.1:800{{ loop.index }};
+{% endfor %}
+    }
+
+    server {
+      listen 8443 ssl;
+
+      ssl_protocols       TLSv1.2 TLSv1.3;
+      ssl_certificate     /tls_certs/tls.crt;
+      ssl_certificate_key /tls_certs/tls.key;
+
+      location / {
+        proxy_pass http://freeipa;
+      }
+    }

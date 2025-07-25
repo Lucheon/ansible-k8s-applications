@@ -1,0 +1,74 @@
+---
+# - name: Fix freeIPA httpd config
+#   ansible.builtin.include_tasks:
+#     file: freeipa_httpd_config.yml
+
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ freeipa_external_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: freeipa_external_enabled
+
+- name: Get CA cert from FreeIPA
+  ansible.builtin.uri:
+    url: "https://{{ freeipa_external_endpoints | first }}/ipa/config/ca.crt"
+    validate_certs: false
+    return_content: true
+  register: freeipa_external_ca
+
+- name: Create Kubernetes ConfigMap for CA certificate
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ freeipa_external_service_name }}-cacert"
+        namespace: "{{ freeipa_external_namespace }}"
+      labels:
+        certificate: cacert
+        scope: all
+      data:
+        ca.crt: "{{ freeipa_external_ca.content }}"
+
+- name: Create nginx configmap
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'proxy_configmap.yml.j2') | from_yaml }}"
+
+- name: Create nginx certificate
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'proxy_certificate.yml.j2') | from_yaml }}"
+
+- name: Create nginx deployment
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'proxy_deployment.yml.j2') | from_yaml }}"
+
+- name: Create servers transport
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'proxy_servers_transport.yml.j2') | from_yaml }}"
+
+- name: Create nginx service
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'proxy_service.yml.j2') | from_yaml }}"
+
+- name: Create nginx ingress
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'proxy_ingress.yml.j2') | from_yaml }}"
+
+- name: Create ldap service
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'ldap_service.yml.j2') | from_yaml }}"
+
+- name: Create Endpoints for the ldap service
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'ldap_endpoints.yml.j2') | from_yaml }}"

@@ -1,0 +1,40 @@
+---
+profilarr_enabled: true
+
+profilarr_helm_repo_name: eb-k8s-home
+
+profilarr_namespace: media
+
+profilarr_image_name: santiagosayshey/profilarr
+profilarr_image_version: latest
+
+profilarr_service_type: ClusterIP
+profilarr_service_port: 6868
+
+profilarr_ingress_enabled: true
+profilarr_ingress_host: profilarr.cluster.local
+profilarr_ingress_path: /
+profilarr_ingress_tls: true
+profilarr_ingress_annotations: []
+profilarr_ingress_class_name: ""
+
+profilarr_volumes: []
+profilarr_volume_mounts: []
+
+profilarr_config_pv_enabled: true
+profilarr_config_pv_size: 100Mi
+profilarr_config_pv_storage_class: ""
+profilarr_config_pv_access_modes:
+  - ReadWriteOnce
+profilarr_config_pv_existing_claim: ""
+profilarr_config_pv_creation: auto # auto, manual_nfs, manual_local
+profilarr_config_pv_local_path: ""
+profilarr_config_pv_local_node_affinity: {}
+profilarr_config_pv_nfs_mount_options: []
+profilarr_config_pv_nfs_path: ""
+profilarr_config_pv_nfs_server: ""
+
+profilarr_resources: {}
+
+profilarr_run_user: 1000
+profilarr_run_group: 1000

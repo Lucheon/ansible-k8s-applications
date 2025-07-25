@@ -1,0 +1,45 @@
+---
+plex_enabled: true
+
+plex_helm_repo_name: eb-k8s-home
+
+plex_namespace: media
+
+plex_image_name: ghcr.io/home-operations/plex
+plex_image_version: rolling
+
+plex_service_enabled: true
+plex_service_type: ClusterIP
+plex_service_port: 32400
+
+plex_ingress_enabled: true
+plex_ingress_host: plex.cluster.local
+plex_ingress_path: /
+plex_ingress_tls: true
+plex_ingress_annotations: {}
+plex_ingress_class_name: ""
+
+plex_volumes: []
+plex_volume_mounts: []
+
+plex_config_pv_enabled: true
+plex_config_pv_size: 2Gi
+plex_config_pv_storage_class: ""
+plex_config_pv_access_modes:
+  - ReadWriteOnce
+plex_config_pv_existing_claim: ""
+plex_config_pv_creation: auto # auto, manual_nfs, manual_local
+plex_config_pv_local_path: ""
+plex_config_pv_local_node_affinity: {}
+plex_config_pv_nfs_mount_options: []
+plex_config_pv_nfs_path: ""
+plex_config_pv_nfs_server: ""
+
+plex_resources: {}
+
+plex_run_user: 1000
+plex_run_group: 1000
+
+plex_nvidia_gpu_enabled: false
+
+plex_claim: "claim"

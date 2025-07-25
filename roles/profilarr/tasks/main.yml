@@ -1,0 +1,48 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ profilarr_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: profilarr_enabled
+
+- name: Deploy profilarr config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ profilarr_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ profilarr_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ profilarr_namespace }}"
+    local_pv_pvc_name: "profilarr-config"
+    local_pv_size: "{{ profilarr_config_pv_size }}"
+  when:
+    - profilarr_enabled
+    - profilarr_config_pv_enabled
+    - profilarr_config_pv_creation == 'manual_local'
+
+- name: Deploy profilarr config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ profilarr_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ profilarr_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ profilarr_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ profilarr_namespace }}"
+    nfs_pv_pvc_name: "profilarr-config"
+    nfs_pv_size: "{{ profilarr_config_pv_size }}"
+    nfs_pv_file_owner: "{{ profilarr_run_user }}"
+    nfs_pv_file_group: "{{ profilarr_run_group }}"
+  when:
+    - profilarr_enabled
+    - profilarr_config_pv_enabled
+    - profilarr_config_pv_creation == 'manual_nfs'
+
+- name: Deploy profilarr chart with values loaded from template
+  kubernetes.core.helm:
+    name: profilarr
+    release_namespace: "{{ profilarr_namespace }}"
+    chart_ref: "{{ profilarr_helm_repo_name }}/profilarr"
+    values: "{{ lookup('template', 'profilarr.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if profilarr_enabled else 'absent' }}"
+    update_repo_cache: true

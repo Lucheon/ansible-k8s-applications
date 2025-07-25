@@ -1,0 +1,109 @@
+---
+# Default values for radarr.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+strategy:
+  type: Recreate
+
+image:
+  repository: {{ radarr_image_name }}
+  pullPolicy: IfNotPresent
+  tag: {{ radarr_image_version }}
+
+env:
+  TZ: "UTC"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: {{ radarr_run_group }}
+  runAsUser: {{ radarr_run_user }}
+  runAsGroup: {{ radarr_run_group }}
+
+securityContext: {}
+
+service:
+  type: {{ radarr_service_type }}
+  port: {{ radarr_service_port }}
+
+ingress:
+{% if radarr_ingress_enabled %}
+  enabled: true
+{% else %}
+  enable: false
+{% endif %}
+  className: {{ radarr_ingress_class_name }}
+  annotations: {{ radarr_ingress_annotations }}
+  hosts:
+    - host: {{ radarr_ingress_host }}
+      paths:
+        - path: {{ radarr_ingress_path }}
+          pathType: ImplementationSpecific
+{% if radarr_ingress_tls %}
+  tls:
+  - secretName: radarr-tls
+    hosts:
+      - {{ radarr_ingress_host }}
+{% else %}
+  tls: []
+{% endif %}
+
+extraVolumes: {{ radarr_volumes }}
+
+extraVolumeMounts: {{ radarr_volume_mounts }}
+
+persistence:
+  config:
+{% if radarr_config_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ radarr_config_pv_storage_class }}
+    annotations: {}
+    existingClaim: {{ radarr_config_pv_existing_claim }}
+    accessModes: {{ radarr_config_pv_access_modes | to_yaml }}
+    size: {{ radarr_config_pv_size }}
+{% if radarr_config_pv_creation != 'auto' %}
+    existingClaim: radarr-config
+{% else %}
+    existingClaim: {{ radarr_config_pv_existing_claim }}
+{% endif %}
+
+resources: {{ radarr_resources }}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

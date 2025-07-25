@@ -1,0 +1,79 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ tvheadend_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: tvheadend_enabled
+
+- name: Deploy tvheadend config persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ tvheadend_config_pv_local_path }}"
+    local_pv_node_affinity: "{{ tvheadend_config_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ tvheadend_namespace }}"
+    local_pv_pvc_name: "tvheadend-config"
+    local_pv_size: "{{ tvheadend_config_pv_size }}"
+  when:
+    - tvheadend_enabled
+    - tvheadend_config_pv_enabled
+    - tvheadend_config_pv_creation == 'manual_local'
+
+- name: Deploy tvheadend config persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ tvheadend_config_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ tvheadend_config_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ tvheadend_config_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ tvheadend_namespace }}"
+    nfs_pv_pvc_name: "tvheadend-config"
+    nfs_pv_size: "{{ tvheadend_config_pv_size }}"
+    nfs_pv_file_owner: "{{ user_nobody_uid }}"
+    nfs_pv_file_group: "{{ group_nobody_uid }}"
+  when:
+    - tvheadend_enabled
+    - tvheadend_config_pv_enabled
+    - tvheadend_config_pv_creation == 'manual_nfs'
+
+- name: Deploy tvheadend recordings persistent volume local
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.local_pv
+  vars:
+    local_pv_path: "{{ tvheadend_recordings_pv_local_path }}"
+    local_pv_node_affinity: "{{ tvheadend_recordings_pv_local_node_affinity }}"
+    local_pv_pvc_namespace: "{{ tvheadend_namespace }}"
+    local_pv_pvc_name: "tvheadend-recordings"
+    local_pv_size: "{{ tvheadend_recordings_pv_size }}"
+  when:
+    - tvheadend_enabled
+    - tvheadend_recordings_pv_enabled
+    - tvheadend_recordings_pv_creation == 'manual_local'
+
+- name: Deploy tvheadend recordings persistent volume nfs
+  ansible.builtin.include_role:
+    name: etiennebarbier.k8s_applications_utils.nfs_pv
+  vars:
+    nfs_pv_nfs_server: "{{ tvheadend_recordings_pv_nfs_server }}"
+    nfs_pv_nfs_path: "{{ tvheadend_recordings_pv_nfs_path }}"
+    nfs_pv_nfs_mount_options: "{{ tvheadend_recordings_pv_nfs_mount_options }}"
+    nfs_pv_pvc_namespace: "{{ tvheadend_namespace }}"
+    nfs_pv_pvc_name: "tvheadend-recordings"
+    nfs_pv_size: "{{ tvheadend_recordings_pv_size }}"
+    nfs_pv_file_owner: "{{ tvheadend_run_user }}"
+    nfs_pv_file_group: "{{ tvheadend_run_group }}"
+  when:
+    - tvheadend_enabled
+    - tvheadend_recordings_pv_enabled
+    - tvheadend_recordings_pv_creation == 'manual_nfs'
+
+- name: Deploy tvheadend chart with values loaded from template
+  kubernetes.core.helm:
+    name: tvheadend
+    release_namespace: "{{ tvheadend_namespace }}"
+    chart_ref: "{{ tvheadend_helm_repo_name }}/tvheadend"
+    values: "{{ lookup('template', 'tvheadend.yml.j2') | from_yaml }}"
+    state: "{{ 'present' if tvheadend_enabled else 'absent' }}"
+    update_repo_cache: true

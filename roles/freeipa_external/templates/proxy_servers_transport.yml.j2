@@ -1,0 +1,10 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: {{ freeipa_external_service_name }}-proxy
+  namespace: {{ freeipa_external_namespace }}
+spec:
+  rootCAsSecrets:
+    - {{ freeipa_external_service_name }}-proxy-backend-tls
+  serverName: {{ freeipa_external_service_name }}-proxy

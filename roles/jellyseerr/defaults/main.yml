@@ -1,0 +1,40 @@
+---
+jellyseerr_enabled: true
+
+jellyseerr_helm_repo_name: eb-k8s-home
+
+jellyseerr_namespace: media
+
+jellyseerr_image_name: fallenbagel/jellyseerr
+jellyseerr_image_version: latest
+
+jellyseerr_service_type: ClusterIP
+jellyseerr_service_port: 5055
+
+jellyseerr_ingress_enabled: true
+jellyseerr_ingress_host: jellyseerr.cluster.local
+jellyseerr_ingress_path: /
+jellyseerr_ingress_tls: true
+jellyseerr_ingress_annotations: []
+jellyseerr_ingress_class_name: ""
+
+jellyseerr_volumes: []
+jellyseerr_volume_mounts: []
+
+jellyseerr_config_pv_enabled: true
+jellyseerr_config_pv_size: 100Mi
+jellyseerr_config_pv_storage_class: ""
+jellyseerr_config_pv_access_modes:
+  - ReadWriteOnce
+jellyseerr_config_pv_existing_claim: ""
+jellyseerr_config_pv_creation: auto # auto, manual_nfs, manual_local
+jellyseerr_config_pv_local_path: ""
+jellyseerr_config_pv_local_node_affinity: {}
+jellyseerr_config_pv_nfs_mount_options: []
+jellyseerr_config_pv_nfs_path: ""
+jellyseerr_config_pv_nfs_server: ""
+
+jellyseerr_resources: {}
+
+jellyseerr_run_user: 1000
+jellyseerr_run_group: 1000
