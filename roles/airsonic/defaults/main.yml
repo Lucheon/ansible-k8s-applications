@@ -1,0 +1,80 @@
+---
+airsonic_enabled: true
+
+airsonic_helm_repo_name: lucheon
+
+airsonic_namespace: media
+
+airsonic_image_name: airsonic/airsonic
+airsonic_image_version: latest
+
+airsonic_service_type: ClusterIP
+airsonic_service_port: 4040
+
+airsonic_ingress_enabled: true
+airsonic_ingress_host: airsonic.cluster.local
+airsonic_ingress_path: /
+airsonic_ingress_tls: true
+airsonic_ingress_annotations: {}
+airsonic_ingress_class_name: ""
+
+airsonic_volumes: []
+airsonic_volume_mounts: []
+
+airsonic_configuration_override: false
+airsonic_configuration: |
+  JWTKey=XXXXXXXXXXXXXXXXXXXXXXX
+  SettingsChanged=XXXXXXXXXXXXXXXXXXXXXXX
+  MediaLibraryStatistics=1512 4850 62662 486912890569 15485585
+  LastScanned=XXXXXXXXXXXXXXXXXXXXXXX
+  IndexString=A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)
+  IgnoredArticles=The El La Los Las Le Les
+  Shortcuts=New Incoming Podcast
+  PlaylistFolder=/var/playlists
+  MusicFileTypes=mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn
+  VideoFileTypes=flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts
+  CoverArtFileTypes2=cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png
+  SortAlbumsByYear=true
+  GettingStartedEnabled=false
+  WelcomeTitle=Airsonic
+  WelcomeSubtitle=
+  WelcomeMessage2=
+  LoginMessage=
+  Theme=default
+  LocaleLanguage=en
+  LocaleCountry=
+  LocaleVariant=
+  IndexCreationInterval=3
+  IndexCreationHour=3
+  FastCacheEnabled=false
+  OrganizeByFolderStructure=true
+  DownloadBitrateLimit=0
+  UploadBitrateLimit=0
+  LdapEnabled=false
+  LdapUrl=ldap://host.domain.com:389/cn=Users,dc=domain,dc=com
+  LdapSearchFilter=(sAMAccountName={0})
+  LdapManagerDn=
+  LdapAutoShadowing=false
+  SmtpServer=smtp.mail.net
+  SmtpEncryption=SSL/TLS
+  SmtpPort=465
+  SmtpUser=info@exemple.net
+  SmtpFrom=info@exemple.net
+  SmtpPassword=XXXXXXXXXXXXXXXXXXXXXXX
+
+airsonic_data_pv_size: 100Mi
+airsonic_data_pv_storage_class: ""
+airsonic_data_pv_access_modes:
+  - ReadWriteOnce
+airsonic_data_pv_existing_claim: ""
+airsonic_data_pv_creation: auto # auto, manual_nfs, manual_local
+airsonic_data_pv_local_path: ""
+airsonic_data_pv_local_node_affinity: {}
+airsonic_data_pv_nfs_mount_options: []
+airsonic_data_pv_nfs_path: ""
+airsonic_data_pv_nfs_server: ""
+
+airsonic_resources: {}
+
+airsonic_run_user: 1000
+airsonic_run_group: 1000

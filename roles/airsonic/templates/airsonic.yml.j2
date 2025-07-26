@@ -1,0 +1,110 @@
+---
+# Default values for airsonic.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+strategy:
+  type: Recreate
+
+image:
+  repository: {{ airsonic_image_name }}
+  pullPolicy: IfNotPresent
+  tag: {{ airsonic_image_version }}
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: {{ airsonic_run_group }}
+  runAsUser: {{ airsonic_run_user }}
+  runAsGroup: {{ airsonic_run_group }}
+
+securityContext: {}
+
+service:
+  type: {{ airsonic_service_type }}
+  port: {{ airsonic_service_port }}
+
+ingress:
+{% if airsonic_ingress_enabled %}
+  enabled: true
+{% else %}
+  enable: false
+{% endif %}
+  className: {{ airsonic_ingress_class_name }}
+  annotations: {{ airsonic_ingress_annotations }}
+  hosts:
+    - host: {{ airsonic_ingress_host }}
+      paths:
+        - path: {{ airsonic_ingress_path }}
+          pathType: ImplementationSpecific
+{% if airsonic_ingress_tls %}
+  tls:
+  - secretName: airsonic-tls
+    hosts:
+      - {{ airsonic_ingress_host }}
+{% else %}
+  tls: []
+{% endif %}
+
+extraVolumes: {{ airsonic_volumes }}
+
+extraVolumeMounts: {{ airsonic_volume_mounts }}
+
+configuration:
+  override: {{ airsonic_configuration_override }}
+  properties: |
+    {{ airsonic_configuration | indent(4) }}
+
+persistence:
+  data:
+{% if airsonic_data_pv_enabled %}
+    enabled: true
+{% else %}
+    enabled: false
+{% endif %}
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: {{ airsonic_data_pv_storage_class }}
+    annotations: {}
+    accessModes: {{ airsonic_data_pv_access_modes | to_yaml }}
+    size: {{ airsonic_data_pv_size }}
+{% if airsonic_data_pv_creation != 'auto' %}
+    existingClaim: airsonic-data
+{% else %}
+    existingClaim: {{ airsonic_data_pv_existing_claim }}
+{% endif %}
+
+resources: {{ airsonic_resources }}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
