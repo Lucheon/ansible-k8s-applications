@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ freeipa_external_service_name }}-ldap
+  namespace: {{ freeipa_external_namespace }}
+spec:
+  commonName: {{ freeipa_external_service_name }}-ldap
+  dnsNames:
+    - {{ freeipa_external_service_name }}-ldap
+    - {{ freeipa_external_service_name }}-ldap.{{ freeipa_external_namespace }}
+    - {{ freeipa_external_service_name }}-ldap.{{ freeipa_external_namespace }}.svc
+  secretName: {{ freeipa_external_service_name }}-ldap-backend-tls
+  issuerRef: {{ freeipa_external_certificate_issuer_ref }}

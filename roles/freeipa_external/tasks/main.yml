@@ -72,3 +72,8 @@
   kubernetes.core.k8s:
     state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
     definition: "{{ lookup('template', 'ldap_endpoints.yml.j2') | from_yaml }}"
+
+- name: Create ldap certificate
+  kubernetes.core.k8s:
+    state: "{{ 'present' if freeipa_external_enabled else 'absent' }}"
+    definition: "{{ lookup('template', 'ldap_certificate.yml.j2') | from_yaml }}"
