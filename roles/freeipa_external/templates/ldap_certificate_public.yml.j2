@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sample-app
+spec:
+  secretName: secret-tls
+  renewBefore: 240h
+  duration: 2160h
+  commonName: MY_CUSTOM_DOMAIN
+  dnsNames:
+  - MY_CUSTOM_DOMAIN
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

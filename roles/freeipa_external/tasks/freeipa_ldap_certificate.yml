@@ -1,0 +1,13 @@
+---
+- name: Create hostsgroup for FreeIPA endpoints
+  ansible.builtin.add_host:
+    name: "{{ item }}"
+    groups: freeipa_external_hosts
+  loop: "{{ freeipa_external_endpoints }}"
+  changed_when: false
+
+- name: Gather facts from each host in 'freeipa_external_hosts'
+  ansible.builtin.setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['freeipa_external_hosts'] }}"
