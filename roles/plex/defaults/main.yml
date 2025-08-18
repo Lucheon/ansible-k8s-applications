@@ -11,6 +11,7 @@ plex_image_version: rolling
 plex_service_enabled: true
 plex_service_type: ClusterIP
 plex_service_port: 32400
+plex_service_annotations: {}
 
 plex_ingress_enabled: true
 plex_ingress_host: plex.cluster.local

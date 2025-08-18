@@ -26,6 +26,8 @@ service:
   type: {{ plex_service_type }}
   port: {{ plex_service_port }}
 
+serviceAnnotations: {{ plex_service_annotations }}
+
 ingress:
 {% if plex_ingress_enabled %}
   enabled: true
