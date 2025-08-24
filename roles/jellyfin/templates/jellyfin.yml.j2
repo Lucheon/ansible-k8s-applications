@@ -39,15 +39,19 @@ ingress:
   className: {{ jellyfin_ingress_class_name }}
   annotations: {{ jellyfin_ingress_annotations }}
   hosts:
-    - host: {{ jellyfin_ingress_host }}
+{% for jellyfin_ingress_host in jellyfin_ingress_hosts %}
+    - host: {{ jellyfin_ingress_host.host }}
       paths:
-        - path: {{ jellyfin_ingress_path }}
+        - path: {{ jellyfin_ingress_host.path }}
           pathType: ImplementationSpecific
-{% if jellyfin_ingress_tls %}
+{% endfor %}
+{% if jellyfin_ingress_hosts | map(attribute="tls") is any %}
   tls:
-  - secretName: jellyfin-tls
+{% for jellyfin_ingress_host in jellyfin_ingress_hosts if (jellyfin_ingress_host.tls | bool) %}
+  - secretName: jellyfin-tls-{{ jellyfin_ingress_host.host | replace('.','-') | replace('_','-') }}
     hosts:
-      - {{ jellyfin_ingress_host }}
+      - {{ jellyfin_ingress_host.host }}
+{% endfor %}
 {% else %}
   tls: []
 {% endif %}

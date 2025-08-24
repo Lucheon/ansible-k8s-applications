@@ -12,9 +12,10 @@ jellyfin_service_type: ClusterIP
 jellyfin_service_port: 8096
 
 jellyfin_ingress_enabled: true
-jellyfin_ingress_host: jellyfin.cluster.local
-jellyfin_ingress_path: /
-jellyfin_ingress_tls: true
+jellyfin_ingress_hosts:
+  - host: jellyfin.cluster.local
+    path: /
+    tls: true
 jellyfin_ingress_annotations: []
 jellyfin_ingress_class_name: ""
 
