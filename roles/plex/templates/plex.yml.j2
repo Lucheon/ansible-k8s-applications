@@ -37,15 +37,19 @@ ingress:
   className: {{ plex_ingress_class_name }}
   annotations: {{ plex_ingress_annotations }}
   hosts:
-    - host: {{ plex_ingress_host }}
+{% for plex_ingress_host in plex_ingress_hosts %}
+    - host: {{ plex_ingress_host.host }}
       paths:
-        - path: {{ plex_ingress_path }}
+        - path: {{ plex_ingress_host.path }}
           pathType: ImplementationSpecific
-{% if plex_ingress_tls %}
+{% endfor %}
+{% if plex_ingress_hosts | map(attribute="tls") is any %}
   tls:
-  - secretName: plex-tls
+{% for plex_ingress_host in plex_ingress_hosts if (plex_ingress_host.tls | bool) %}
+  - secretName: plex-tls-{{ plex_ingress_host.host | replace('.','-') | replace('_','-') }}
     hosts:
-      - {{ plex_ingress_host }}
+      - {{ plex_ingress_host.host }}
+{% endfor %}
 {% else %}
   tls: []
 {% endif %}
