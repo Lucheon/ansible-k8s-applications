@@ -12,9 +12,10 @@ jellyseerr_service_type: ClusterIP
 jellyseerr_service_port: 5055
 
 jellyseerr_ingress_enabled: true
-jellyseerr_ingress_host: jellyseerr.cluster.local
-jellyseerr_ingress_path: /
-jellyseerr_ingress_tls: true
+jellyseerr_ingress_hosts:
+  - host: jellyseerr.cluster.local
+    path: /
+    tls: true
 jellyseerr_ingress_annotations: []
 jellyseerr_ingress_class_name: ""
 

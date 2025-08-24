@@ -39,15 +39,19 @@ ingress:
   className: {{ jellyseerr_ingress_class_name }}
   annotations: {{ jellyseerr_ingress_annotations }}
   hosts:
-    - host: {{ jellyseerr_ingress_host }}
+{% for jellyseerr_ingress_host in jellyseerr_ingress_hosts %}
+    - host: {{ jellyseerr_ingress_host.host }}
       paths:
-        - path: {{ jellyseerr_ingress_path }}
+        - path: {{ jellyseerr_ingress_host.path }}
           pathType: ImplementationSpecific
-{% if jellyseerr_ingress_tls %}
+{% endfor %}
+{% if jellyseerr_ingress_hosts | map(attribute="tls") is any %}
   tls:
-  - secretName: jellyseerr-tls
+{% for jellyseerr_ingress_host in jellyseerr_ingress_hosts if (jellyseerr_ingress_host.tls | bool) %}
+  - secretName: jellyseerr-tls-{{ jellyseerr_ingress_host.host | replace('.','-') | replace('_','-') }}
     hosts:
-      - {{ jellyseerr_ingress_host }}
+      - {{ jellyseerr_ingress_host.host }}
+{% endfor %}
 {% else %}
   tls: []
 {% endif %}
