@@ -31,7 +31,7 @@ service:
   port: {{ airsonic_service_port }}
 
 ingress:
-{% if airsonic_ingress_enabled %}
+{% if airsonic_ingress_enabled | bool %}
   enabled: true
 {% else %}
   enable: false
@@ -39,15 +39,19 @@ ingress:
   className: {{ airsonic_ingress_class_name }}
   annotations: {{ airsonic_ingress_annotations }}
   hosts:
-    - host: {{ airsonic_ingress_host }}
+{% for airsonic_ingress_host in airsonic_ingress_hosts %}
+    - host: {{ airsonic_ingress_host.host }}
       paths:
-        - path: {{ airsonic_ingress_path }}
+        - path: {{ airsonic_ingress_host.path }}
           pathType: ImplementationSpecific
-{% if airsonic_ingress_tls %}
+{% endfor %}
+{% if airsonic_ingress_hosts | map(attribute="tls") is any %}
   tls:
-  - secretName: airsonic-tls
+{% for airsonic_ingress_host in airsonic_ingress_hosts if (airsonic_ingress_host.tls | bool) %}
+  - secretName: airsonic-tls-{{ airsonic_ingress_host.host | replace('.','-') | replace('_','-') }}
     hosts:
-      - {{ airsonic_ingress_host }}
+      - {{ airsonic_ingress_host.host }}
+{% endfor %}
 {% else %}
   tls: []
 {% endif %}
@@ -63,7 +67,7 @@ configuration:
 
 persistence:
   data:
-{% if airsonic_data_pv_enabled %}
+{% if airsonic_data_pv_enabled | bool %}
     enabled: true
 {% else %}
     enabled: false
@@ -78,10 +82,17 @@ persistence:
     annotations: {}
     accessModes: {{ airsonic_data_pv_access_modes | to_yaml }}
     size: {{ airsonic_data_pv_size }}
-{% if airsonic_data_pv_creation != 'auto' %}
-    existingClaim: airsonic-data
-{% else %}
+{% if airsonic_data_pv_existing_claim %}
     existingClaim: {{ airsonic_data_pv_existing_claim }}
+{% endif %}
+{% if airsonic_data_pv_data_source %}
+    dataSource: {{ airsonic_data_pv_data_source }}
+{% endif %}
+{% if airsonic_data_pv_data_source_ref %}
+    dataSourceRef: {{ airsonic_data_pv_data_source_ref }}
+{% endif %}
+{% if airsonic_data_pv_keep_on_uninstall | bool %}
+    keepOnUninstall: true
 {% endif %}
 
 resources: {{ airsonic_resources }}

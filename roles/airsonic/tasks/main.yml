@@ -7,42 +7,11 @@
     state: present
   when: airsonic_enabled
 
-- name: Deploy airsonic data persistent volume local
-  ansible.builtin.include_role:
-    name: etiennebarbier.k8s_applications_utils.local_pv
-  vars:
-    local_pv_path: "{{ airsonic_data_pv_local_path }}"
-    local_pv_node_affinity: "{{ airsonic_data_pv_local_node_affinity }}"
-    local_pv_pvc_namespace: "{{ airsonic_namespace }}"
-    local_pv_pvc_name: "airsonic-data"
-    local_pv_size: "{{ airsonic_data_pv_size }}"
-  when:
-    - airsonic_enabled
-    - airsonic_data_pv_enabled
-    - airsonic_data_pv_creation == 'manual_local'
-
-- name: Deploy airsonic data persistent volume nfs
-  ansible.builtin.include_role:
-    name: etiennebarbier.k8s_applications_utils.nfs_pv
-  vars:
-    nfs_pv_nfs_server: "{{ airsonic_data_pv_nfs_server }}"
-    nfs_pv_nfs_path: "{{ airsonic_data_pv_nfs_path }}"
-    nfs_pv_nfs_mount_options: "{{ airsonic_data_pv_nfs_mount_options }}"
-    nfs_pv_pvc_namespace: "{{ airsonic_namespace }}"
-    nfs_pv_pvc_name: "airsonic-data"
-    nfs_pv_size: "{{ airsonic_data_pv_size }}"
-    nfs_pv_file_owner: "{{ airsonic_run_user }}"
-    nfs_pv_file_group: "{{ airsonic_run_group }}"
-  when:
-    - airsonic_enabled
-    - airsonic_data_pv_enabled
-    - airsonic_data_pv_creation == 'manual_nfs'
-
 - name: Deploy airsonic chart with values loaded from template
   kubernetes.core.helm:
     name: airsonic
     release_namespace: "{{ airsonic_namespace }}"
     chart_ref: "{{ airsonic_helm_repo_name }}/airsonic"
     values: "{{ lookup('template', 'airsonic.yml.j2') | from_yaml }}"
-    state: "{{ 'present' if airsonic_enabled else 'absent' }}"
+    state: "{{ 'present' if airsonic_enabled | bool else 'absent' }}"
     update_repo_cache: true
