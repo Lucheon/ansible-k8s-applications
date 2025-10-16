@@ -1,0 +1,17 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ pterodactyl_panel_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: pterodactyl_panel_enabled
+
+- name: Deploy pterodactyl_panel chart with values loaded from template
+  kubernetes.core.helm:
+    name: "{{ pterodactyl_panel_instance_name }}"
+    release_namespace: "{{ pterodactyl_panel_namespace }}"
+    chart_ref: "{{ pterodactyl_panel_helm_repo_name }}/{{ pterodactyl_panel_helm_chart_name }}"
+    values: "{{ pterodactyl_panel_values | from_yaml }}"
+    state: "{{ 'present' if pterodactyl_panel_enabled | bool else 'absent' }}"
+    update_repo_cache: true

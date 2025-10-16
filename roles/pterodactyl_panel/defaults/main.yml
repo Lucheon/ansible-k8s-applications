@@ -1,0 +1,11 @@
+---
+pterodactyl_panel_enabled: false
+
+pterodactyl_panel_helm_repo_name: lucheon
+pterodactyl_panel_helm_chart_name: pterodactyl-panel
+
+pterodactyl_panel_namespace: games
+
+pterodactyl_panel_instance_name: pterodactyl-panel
+
+pterodactyl_panel_values: {}
