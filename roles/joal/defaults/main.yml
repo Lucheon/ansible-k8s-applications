@@ -1,0 +1,11 @@
+---
+joal_enabled: false
+
+joal_helm_repo_name: lucheon
+joal_helm_chart_name: joal
+
+joal_namespace: media
+
+joal_instance_name: joal
+
+joal_values: {}

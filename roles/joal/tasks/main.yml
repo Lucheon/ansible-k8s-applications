@@ -1,0 +1,17 @@
+---
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ joal_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: joal_enabled
+
+- name: Deploy joal chart with values loaded from template
+  kubernetes.core.helm:
+    name: "{{ joal_instance_name }}"
+    release_namespace: "{{ joal_namespace }}"
+    chart_ref: "{{ joal_helm_repo_name }}/{{ joal_helm_chart_name }}"
+    values: "{{ joal_values | from_yaml }}"
+    state: "{{ 'present' if joal_enabled | bool else 'absent' }}"
+    update_repo_cache: true
